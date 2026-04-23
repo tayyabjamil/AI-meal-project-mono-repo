@@ -10,9 +10,18 @@ web-build/
 ios/
 android/
 
-# Environment
+# Environment — all .env variants
 .env
 .env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.staging
+.env.*.local
+*.env
 
 # OS
 .DS_Store
