@@ -2,7 +2,7 @@
 
 ---
 
-## Day 1 — Project Setup
+## Day 1 — Project Setup, Config & Structure
 
 **Created the Expo project with TypeScript template:**
 ```bash
@@ -15,28 +15,16 @@ cd mealApp
 "main": "expo-router/entry"
 ```
 
-**Installed Expo Router and required dependencies:**
+**Installed all dependencies:**
 ```bash
 npx expo install expo-router expo-linking expo-constants expo-font expo-splash-screen expo-status-bar
 npx expo install react-native-safe-area-context react-native-screens react-native-gesture-handler react-native-reanimated
 npm install @expo/vector-icons
-```
-
-**Started the dev server:**
-```bash
-npx expo start
-```
-
----
-
-## Day 2 — Added NativeWind (Tailwind CSS)
-
-**Installed NativeWind and Tailwind:**
-```bash
 npm install nativewind tailwindcss
+npm install react-native-worklets react-native-worklets-core --legacy-peer-deps
 ```
 
-**Created `tailwind.config.js`** — tells Tailwind which files to scan and adds custom brand colors:
+**Created `tailwind.config.js`:**
 ```js
 module.exports = {
   content: ['./app/**/*.{js,jsx,ts,tsx}', './components/**/*.{js,jsx,ts,tsx}'],
@@ -54,20 +42,20 @@ module.exports = {
 };
 ```
 
-**Created `global.css`** — required entry point for Tailwind:
+**Created `global.css`:**
 ```css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 ```
 
-**Updated `babel.config.js`** — added NativeWind preset and Reanimated plugin:
+**Updated `babel.config.js`:**
 ```js
 presets: [['babel-preset-expo', { jsxImportSource: 'nativewind' }], 'nativewind/babel'],
 plugins: ['react-native-reanimated/plugin'],
 ```
 
-**Created `metro.config.js`** — wires NativeWind into Metro bundler:
+**Created `metro.config.js`:**
 ```js
 const { withNativeWind } = require('nativewind/metro');
 module.exports = withNativeWind(getDefaultConfig(__dirname), { input: './global.css' });
@@ -75,16 +63,7 @@ module.exports = withNativeWind(getDefaultConfig(__dirname), { input: './global.
 
 **Created `nativewind-env.d.ts`** — TypeScript support for `className` prop.
 
-**Always clear cache after config changes:**
-```bash
-npx expo start --clear
-```
-
----
-
-## Day 3 — Folder Structure & Types
-
-**Created the project structure:**
+**Created folder structure:**
 ```
 app/
   (auth)/           ← login, signup, forgot-password
@@ -98,157 +77,71 @@ types/              ← TypeScript type definitions
 ```
 
 **Defined types in `types/index.ts`:**
-- `Meal` — meal data shape (id, title, image, calories, protein, etc.)
-- `ChatMessage` — chat message with sender and timestamp
-- `UserProfile` — user data (goal, diet type, allergies, calorie target)
+- `Meal` — id, title, image, calories, protein, carbs, fat, prepTime, category, tags, description, ingredients, instructions
+- `ChatMessage` — id, text, sender, timestamp
+- `UserProfile` — name, email, avatar, goal, dailyCalorieTarget, dietType, allergies
 - Union types: `MealCategory`, `GoalType`, `DietType`, `Cuisine`
 
 **Added mock data in `constants/mockData.ts`:**
 - 8 sample meals (Avocado Toast, Grilled Chicken, Salmon Bowl, etc.)
 - 3 seed chat messages
-- 1 mock user profile (Alex Johnson)
-
----
-
-## Day 4 — Reusable Components
+- 1 mock user (Alex Johnson)
 
 **Built 5 reusable components in `/components`:**
+- **`Button.tsx`** — variants: primary, secondary, outline, ghost. Sizes: sm, md, lg. Loading spinner + disabled state.
+- **`Input.tsx`** — label, error, left/right icons, password toggle, focus border highlight.
+- **`Card.tsx`** — variants: default, elevated, flat. Padding: none, sm, md, lg.
+- **`MealCard.tsx`** — vertical (full image) and horizontal (compact row) layouts. Bookmark toggle, navigates to meal detail.
+- **`ChatBubble.tsx`** — user messages right-aligned (green), AI messages left-aligned (white/slate) with timestamp.
 
-- **`Button.tsx`** — variants: primary, secondary, outline, ghost. Sizes: sm, md, lg. Supports loading spinner and disabled state.
-- **`Input.tsx`** — label, error message, left/right icons, password toggle with eye icon, focus border highlight.
-- **`Card.tsx`** — wrapper with variants: default, elevated, flat. Padding options: none, sm, md, lg.
-- **`MealCard.tsx`** — vertical (full image card) and horizontal (compact row) layouts. Shows image, title, calories, protein. Has bookmark toggle and navigates to meal detail on press.
-- **`ChatBubble.tsx`** — user messages right-aligned (green), AI messages left-aligned (white/slate). Shows timestamp.
+**Set up navigation layouts:**
+- `app/_layout.tsx` — root stack, `SafeAreaProvider`, transparent header for meal detail
+- `app/(tabs)/_layout.tsx` — 5 tabs (Home, Search, AI Chat, Saved, Profile), green active color, 70px tab bar
+- `app/(auth)/_layout.tsx` and `app/(onboarding)/_layout.tsx` — simple stacks, no header
+- `app/index.tsx` — redirects to `/splash`
 
-All components use **NativeWind `className`** for styling and support dark mode via `dark:` prefix.
-
----
-
-## Day 5 — Navigation Setup
-
-**Root layout (`app/_layout.tsx`):**
-- Wrapped entire app in `SafeAreaProvider`
-- Stack navigator — hides header for auth/onboarding/tabs groups
-- Shows header for meal detail (transparent), edit-profile, and settings screens
-
-**Tab layout (`app/(tabs)/_layout.tsx`):**
-- 5 tabs: Home, Search, AI Chat, Saved, Profile
-- Active tab shows green pill background behind icon
-- Tab bar: 70px height, shadow, `#22c55e` active color
-
-**Auth layout (`app/(auth)/_layout.tsx`)** — simple stack, no header.
-**Onboarding layout (`app/(onboarding)/_layout.tsx`)** — simple stack, no header.
-
-**Entry point (`app/index.tsx`):**
-```tsx
-return <Redirect href="/splash" />;
+**Started dev server:**
+```bash
+npx expo start --clear
 ```
 
 ---
 
-## Day 6 — Auth Screens
+## Day 2 — All Screens, Services & Git
 
-**Splash screen (`app/splash.tsx`):**
-- Animated logo (fade in + spring scale using `Animated` from React Native)
-- Auto-redirects to login after 2.2 seconds
+**Auth screens:**
+- `splash.tsx` — animated logo (fade + spring), auto-redirects to login after 2.2s
+- `(auth)/login.tsx` — email/password, loading state, Google/Apple buttons, links to signup + forgot password
+- `(auth)/signup.tsx` — name, email, password, confirm password → navigates to onboarding
+- `(auth)/forgot-password.tsx` — email input, send reset link, success message
 
-**Login screen (`app/(auth)/login.tsx`):**
-- Email + password inputs
-- Loading state on sign in (1.2s mock delay) → navigates to main tabs
-- Google + Apple social buttons
-- Links to signup and forgot password
-
-**Signup screen (`app/(auth)/signup.tsx`):**
-- Name, email, password, confirm password
-- On success → navigates to onboarding welcome
-
-**Forgot password screen (`app/(auth)/forgot-password.tsx`):**
-- Email input → send reset link
-- Shows success message after submit
-
----
-
-## Day 7 — Onboarding Flow
-
-5-step flow with a progress bar at the top showing current step.
+**Onboarding flow** (5 steps, progress bar at top):
 
 | Step | Screen | What it does |
 |------|--------|--------------|
 | 1 | `welcome.tsx` | App intro + feature highlights |
-| 2 | `goal-selection.tsx` | Pick goal: lose weight, gain muscle, maintain |
+| 2 | `goal-selection.tsx` | Pick goal: lose weight / gain muscle / maintain |
 | 3 | `preferences.tsx` | Choose cuisines + diet type |
 | 4 | `allergies.tsx` | Select allergens to avoid |
 | 5 | `calorie-setup.tsx` | Set daily calorie target → enters main app |
 
-Each step's Continue button is disabled until a selection is made.
+**Main tab screens:**
+- `(tabs)/index.tsx` — greeting header, calorie tracker card with circular progress + macros, horizontal quick meals scroll, vertical recommended list
+- `(tabs)/search.tsx` — search input, category filter chips, real-time filtering, empty state
+- `(tabs)/chat.tsx` — AI assistant header, message list, typing indicator (3 dots), suggestion chips, multiline input + send button, `KeyboardAvoidingView`
+- `(tabs)/saved.tsx` — saved meals list, unsave toggle, empty state
+- `(tabs)/profile.tsx` — avatar, stats card, calorie progress, menu, sign out
 
----
+**Additional screens:**
+- `meal/[id].tsx` — dynamic route, hero image, macro grid, ingredients list, numbered instructions, fixed bottom CTA
+- `edit-profile.tsx` — edit name, email, goal, calorie target
+- `settings.tsx` — toggle switches (reminders, dark mode, units), link rows, version footer
 
-## Day 8 — Main Tab Screens
+**Services layer:**
+- `services/mealService.ts` — `getAll()`, `getById()`, `getByCategory()`, `search()`, `getQuickMeals()`, `getRecommended()`
+- `services/chatService.ts` — `getAIResponse()`, `createUserMessage()`, `createAIMessage()`
 
-**Home (`(tabs)/index.tsx`):**
-- Greeting + avatar header
-- Calorie tracker card with circular progress and macro breakdown
-- Horizontal scroll: Quick & Easy meals (≤10 min prep)
-- Vertical list: Recommended meals
-
-**Search (`(tabs)/search.tsx`):**
-- Search input with clear button
-- Category filter chips: All, Breakfast, Lunch, Dinner, Snack, Healthy
-- Real-time filtering, result count, empty state
-
-**Chat (`(tabs)/chat.tsx`):**
-- AI assistant header with online indicator
-- Message list using `ChatBubble`
-- Typing indicator (3 animated dots while AI "thinks")
-- Quick suggestion chips
-- Multiline input + send button, `KeyboardAvoidingView` for keyboard handling
-
-**Saved (`(tabs)/saved.tsx`):**
-- Pre-saved meals list, toggle to unsave
-- Empty state with icon + message
-
-**Profile (`(tabs)/profile.tsx`):**
-- Avatar, name, email, goal badge
-- Stats: meals logged, streak, avg calories
-- Menu: Edit Profile, Settings, Notifications, Privacy, Help
-- Sign Out button
-
----
-
-## Day 9 — Detail & Settings Screens
-
-**Meal Detail (`app/meal/[id].tsx`):**
-- Dynamic route — gets meal ID from URL params
-- Hero image with back/bookmark buttons
-- Macro grid (calories, protein, carbs, fat)
-- Ingredients list + numbered instructions
-- Fixed bottom "Add to Today's Log" CTA
-
-**Edit Profile (`app/edit-profile.tsx`):**
-- Edit name, email, goal, calorie target
-- Camera button on avatar
-
-**Settings (`app/settings.tsx`):**
-- Toggle switches: Meal Reminders, Dark Mode, Metric Units, Share Progress
-- Link rows: Terms, Privacy, Help, Rate App
-- App version at bottom
-
----
-
-## Day 10 — Services Layer
-
-**`services/mealService.ts`** — data access layer for meals:
-- `getAll()`, `getById(id)`, `getByCategory()`, `search()`, `getQuickMeals()`, `getRecommended()`
-
-**`services/chatService.ts`** — chat logic extracted from screen:
-- `getAIResponse(message)` — async mock response with random delay
-- `createUserMessage()` / `createAIMessage()` — message factory functions
-
----
-
-## Git Setup
-
+**Git setup and pushed to GitHub:**
 ```bash
 echo "# AI-meal-project-mono-repo" >> README.md
 git init
@@ -257,9 +150,12 @@ git commit -m "first commit"
 git branch -M main
 git remote add origin https://github.com/tayyabjamil/AI-meal-project-mono-repo.git
 git push -u origin main
+git add .
+git commit -m "Add full MealAI Expo app"
+git push
 ```
 
-Added `.gitignore` to exclude:
+**Added `.gitignore`:**
 ```
 node_modules/
 .expo/
@@ -267,7 +163,7 @@ node_modules/
 dist/
 ```
 
-Added `.vscode/settings.json` to stop VS Code from watching node_modules (fixes 10k changes in Source Control).
+**Added `.vscode/settings.json`** — excludes `node_modules` from VS Code file watcher (fixes 10k phantom changes in Source Control).
 
 ---
 
@@ -275,7 +171,7 @@ Added `.vscode/settings.json` to stop VS Code from watching node_modules (fixes 
 
 ```bash
 npx expo start              # start dev server
-npx expo start --clear      # clear Metro cache (use after config changes)
+npx expo start --clear      # clear Metro cache (always run after config changes)
 npx expo start --ios        # open iOS simulator
 npx expo start --android    # open Android emulator
 npx tsc --noEmit            # TypeScript check without building
