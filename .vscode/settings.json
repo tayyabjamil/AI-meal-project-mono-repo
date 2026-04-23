@@ -1,0 +1,16 @@
+{
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.expo/**": true,
+    "**/dist/**": true
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.expo": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.expo": true
+  },
+  "git.decorations.enabled": true
+}
