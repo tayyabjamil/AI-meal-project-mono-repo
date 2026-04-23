@@ -6,6 +6,100 @@
 
 The backend is fully powered by **Supabase** — no custom server required.
 
+---
+
+## Key Concepts
+
+### Server-based vs Serverless
+
+**Express / Node — Server Based**
+You write the server, you own the server, you deploy the server.
+```
+You write code → deploy to Render/Heroku → they run your server 24/7
+                                              ↓
+                                        Your server handles:
+                                        - routes
+                                        - auth
+                                        - DB queries
+                                        - crashes
+                                        - scaling
+```
+If your server goes down — your app breaks. You have to fix it.
+
+**Supabase — Serverless**
+You write nothing. Supabase runs everything on their infrastructure.
+```
+You create tables → run migration → done
+                                     ↓
+                              Supabase handles:
+                              - routes (auto-generated)
+                              - auth (built in)
+                              - DB queries (PostgREST)
+                              - crashes (their problem)
+                              - scaling (their problem)
+```
+
+There IS a server — you just don't own it. Supabase's server is already running in the cloud. You just connect to it using a URL and keys they give you.
+
+| | Express/Node | Supabase |
+|---|---|---|
+| Local dev | `npm run dev` runs server on your machine | `supabase start` spins up a local copy |
+| Production | Deploy to Render/Heroku/AWS | Already deployed — Supabase's cloud IS production |
+| You manage | Your server + database | Nothing — just your tables and rules |
+
+---
+
+### Firebase vs Supabase — Both Serverless
+
+Firebase (by Google) and Supabase are the same concept — you don't own a server, they handle everything.
+
+| Feature | Firebase | Supabase |
+|---|---|---|
+| Database | Firestore (NoSQL) | PostgreSQL (SQL) |
+| Auth | Firebase Auth | Supabase Auth |
+| Custom logic | Cloud Functions | Edge Functions |
+| Storage | Firebase Storage | Supabase Storage |
+| Real-time | Yes | Yes |
+| Made by | Google | Open source |
+
+Main difference: Firebase uses **NoSQL** (documents/collections), Supabase uses **SQL** (tables/rows). If you know SQL, Supabase is more familiar.
+
+---
+
+### Serverless vs Microservices
+
+These are two different concepts that are often used together.
+
+**Serverless** = how you *run* your backend (no server to manage)
+
+**Microservices** = how you *structure* your backend
+
+**Monolith** — one big server that does everything:
+```
+One Server
+├── handles auth
+├── handles meals
+├── handles chat
+└── handles payments
+```
+If it goes down — everything goes down.
+
+**Microservices** — many small independent services, each doing one job:
+```
+Auth Service     → only handles login/signup
+Meals Service    → only handles meals
+Chat Service     → only handles chat
+Payment Service  → only handles payments
+```
+If chat goes down — auth still works. They're independent.
+
+Serverless functions (Firebase Cloud Functions / Supabase Edge Functions) are commonly used to **build microservices** — each function is one small independent piece of logic. Our `chat` Edge Function is a good example of this pattern.
+
+```
+Microservices = architecture pattern (how you structure your backend)
+Serverless    = how you run it (no server to manage)
+```
+
 | Feature | How it's handled |
 |---|---|
 | Authentication | Supabase Auth (email/password, OAuth) |
