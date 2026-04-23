@@ -35,3 +35,6 @@ yarn-error.log*
 
 # Expo generated
 expo-env.d.ts
+
+# Backend build
+apps/backend/dist/
